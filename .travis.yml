@@ -1,0 +1,21 @@
+language: python
+sudo: false
+env:
+    - PYTHON_VERSION=2.7
+    - PYTHON_VERSION=3.5
+before_install:
+  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+  - chmod +x miniconda.sh
+  - ./miniconda.sh -b
+  - export PATH=/home/travis/miniconda3/bin:$PATH
+  # Update conda itself
+  - conda update --yes conda
+install:
+  - travis_retry conda create --yes -n env_name python=$PYTHON_VERSION pip nose flake8 coverage 'h5py>=2.3.1' 'pandas>=0.18' 'scipy>0.13.0' 'numpy>=1.7'
+  - source activate env_name
+  - travis_retry pip install .
+script:
+  - nosetests --with-doctest --with-coverage
+  - flake8 qiita_files setup.py
+after_success:
+  - coveralls
