@@ -41,7 +41,6 @@ setup(name='qiita-files',
       test_suite='nose.collector',
       packages=['qiita_files'],
       extras_require={'test': ["nose >= 0.10.1", "pep8"]},
-      install_requires=['future', 'numpy', 'scikit-bio >= 0.2.3, < 0.3.0',
-                        'six'],
+      install_requires=['future', 'numpy', 'six', 'h5py'],
       classifiers=classifiers
       )

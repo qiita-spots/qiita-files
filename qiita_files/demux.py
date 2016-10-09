@@ -56,10 +56,11 @@ from re import search
 import numpy as np
 from future.utils import viewitems, viewvalues
 from future.builtins import zip
-from skbio.parse.sequences import load
-from skbio.format.sequences import format_fastq_record
 
-from .util import open_file
+from qiita_files.parse import load
+from qiita_files.format.fasta import format_fasta_record
+from qiita_files.format.fastq import format_fastq_record
+from qiita_files.util import open_file
 
 
 # track some basic stats about the samples
@@ -71,6 +72,8 @@ dset_paths = {'sequence': 'sequence',
               'barcode_corrected': 'barcode/corrected',
               'barcode_error': 'barcode/error',
               'qual': 'qual'}
+
+dset_paths_bytes = {k: v.encode('ascii') for k, v in dset_paths.items()}
 
 
 class _buffer(object):
@@ -386,26 +389,6 @@ def to_hdf5(fp, h5file, max_barcode_length=12):
             buffers[pjoin(dset_paths['qual'])].write(qual)
 
 
-def format_fasta_record(seqid, seq, qual):
-    """Format a fasta record
-
-    Parameters
-    ----------
-    seqid : str
-        The sequence ID
-    seq : str
-        The sequence
-    qual : ignored
-        This is ignored
-
-    Returns
-    -------
-    str
-        A formatted sequence record
-    """
-    return b'\n'.join([b'>' + seqid, seq, b''])
-
-
 def to_ascii(demux, samples=None):
     """Consume a demuxed HDF5 file and yield sequence records
 
@@ -429,15 +412,15 @@ def to_ascii(demux, samples=None):
     else:
         formatter = format_fasta_record
 
-    id_fmt = ("%(sample)s_%(idx)d orig_bc=%(bc_ori)s new_bc=%(bc_cor)s "
-              "bc_diffs=%(bc_diff)d")
+    id_fmt = (b"%(sample)s_%(idx)d orig_bc=%(bc_ori)s new_bc=%(bc_cor)s "
+              b"bc_diffs=%(bc_diff)d")
 
     if samples is None:
         samples = demux.keys()
 
     for samp, idx, seq, qual, bc_ori, bc_cor, bc_err in fetch(demux, samples):
-        seq_id = id_fmt % {'sample': samp, 'idx': idx, 'bc_ori': bc_ori,
-                           'bc_cor': bc_cor, 'bc_diff': bc_err}
+        seq_id = id_fmt % {b'sample': samp, b'idx': idx, b'bc_ori': bc_ori,
+                           b'bc_cor': bc_cor, b'bc_diff': bc_err}
         if qual != []:
             qual = qual.astype(np.uint8)
 
@@ -468,6 +451,7 @@ def to_per_sample_ascii(demux, samples=None):
         samples = demux.keys()
 
     for samp in samples:
+        samp = samp.encode()
         yield samp, to_ascii(demux, samples=[samp])
 
 
@@ -513,20 +497,22 @@ def fetch(demux, samples=None, k=None):
             indices = np.logical_not(indices)
             indices[to_keep[:k]] = True
 
-        seqs = demux[pjoin(dset_paths['sequence'])][indices]
+        seqs = demux[pjoin(dset_paths_bytes['sequence'])][indices]
 
         # only yield qual if we have it
         quals = repeat([])
         if demux.attrs['has-qual']:
             if len(indices) == 1:
                 if indices[0]:
-                    quals = demux[pjoin(dset_paths['qual'])][:]
+                    quals = demux[pjoin(dset_paths_bytes['qual'])][:]
             else:
-                quals = demux[pjoin(dset_paths['qual'])][indices, :]
+                quals = demux[pjoin(dset_paths_bytes['qual'])][indices, :]
 
-        bc_original = demux[pjoin(dset_paths['barcode_original'])][indices]
-        bc_corrected = demux[pjoin(dset_paths['barcode_corrected'])][indices]
-        bc_error = demux[pjoin(dset_paths['barcode_error'])][indices]
+        bc_original = demux[
+            pjoin(dset_paths_bytes['barcode_original'])][indices]
+        bc_corrected = demux[
+            pjoin(dset_paths_bytes['barcode_corrected'])][indices]
+        bc_error = demux[pjoin(dset_paths_bytes['barcode_error'])][indices]
 
         iter_ = zip(repeat(sample), np.arange(indices.size)[indices], seqs,
                     quals, bc_original, bc_corrected, bc_error)
