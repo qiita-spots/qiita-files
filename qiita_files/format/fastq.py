@@ -39,19 +39,6 @@ def format_fastq_record(seqid, seq, qual, phred_offset=33):
     Returns
     -------
     bytes : a string representation of a single FASTQ record
-
-    Examples
-    --------
-    >>> from qiita_files._fastq import format_fastq_record
-    >>> from numpy import array, int8
-    >>> seqid = b'seq1'
-    >>> seq = b'AATTGG'
-    >>> qual = array([38, 38, 39, 39, 40, 40], dtype=int8)
-    >>> print format_fastq_record(seqid, seq, qual),
-    @seq1
-    AATTGG
-    +
-    GGHHII
     """
     if phred_offset == 33:
         phred_f = _phred_to_ascii33

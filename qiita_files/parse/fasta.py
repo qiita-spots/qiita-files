@@ -112,42 +112,6 @@ def parse_fasta(infile, strict=True, label_to_name=None, finder=FastaFinder,
         If ``strict == True``, raises a ``ValueError`` if there is a fasta
         label line with no associated sequence, or a sequence with no
         associated label line (in other words, if there is a partial record).
-
-    Examples
-    --------
-    Assume we have a fasta-formatted file with the following contents::
-        >seq1 db-accession-149855
-        CGATGTCGATCGATCGATCGATCAG
-        >seq2 db-accession-34989
-        CATCGATCGATCGATGCATGCATGCATG
-    >>> from StringIO import StringIO
-    >>> fasta_f = StringIO('>seq1 db-accession-149855\n'
-    ...                    'CGATGTCGATCGATCGATCGATCAG\n'
-    ...                    '>seq2 db-accession-34989\n'
-    ...                    'CATCGATCGATCGATGCATGCATGCATG\n')
-    We can parse this as follows:
-    >>> from qiita_files.parse.fasta import parse_fasta
-    >>> for label, seq in parse_fasta(fasta_f):
-    ...     print(label, seq)
-    seq1 db-accession-149855 CGATGTCGATCGATCGATCGATCAG
-    seq2 db-accession-34989 CATCGATCGATCGATGCATGCATGCATG
-    The sequence label or header line in a fasta file is defined as containing
-    two separate pieces of information, delimited by a space. The first space-
-    separated entry is the sequence identifier, and everything following the
-    first space is considered additional information (e.g., comments about the
-    source of the sequence or the molecule that it encodes). Often we don't
-    care about that information within our code. If you want to just return the
-    sequence identifier from that line, you can pass ``ignore_comment=True``:
-    >>> from StringIO import StringIO
-    >>> fasta_f = StringIO('>seq1 db-accession-149855\n'
-    ...                    'CGATGTCGATCGATCGATCGATCAG\n'
-    ...                    '>seq2 db-accession-34989\n'
-    ...                    'CATCGATCGATCGATGCATGCATGCATG\n')
-    >>> from qiita_files.parse.fasta import parse_fasta
-    >>> for label, seq in parse_fasta(fasta_f, ignore_comment=True):
-    ...     print(label, seq)
-    seq1 CGATGTCGATCGATCGATCGATCAG
-    seq2 CATCGATCGATCGATGCATGCATGCATG
     """
     for rec in finder(infile):
         # first line must be a label line
@@ -200,27 +164,6 @@ def parse_qual(infile, full_header=False):
         The quality label
     qual : array
         The quality at each position
-
-    Examples
-    --------
-    Assume we have a qual formatted file with the following contents::
-        >seq1
-        10 20 30 40
-        >seq2
-        1 2 3 4
-    >>> from StringIO import StringIO
-    >>> from qiita_files.parse.fasta import parse_qual
-    >>> qual_f = StringIO('>seq1\n'
-    ...                   '10 20 30 40\n'
-    ...                   '>seq2\n'
-    ...                   '1 2 3 4\n')
-    >>> for label, qual in parse_qual(qual_f):
-    ...     print(label)
-    ...     print(qual)
-    seq1
-    [10 20 30 40]
-    seq2
-    [1 2 3 4]
     """
 
     for rec in FastaFinder(infile):

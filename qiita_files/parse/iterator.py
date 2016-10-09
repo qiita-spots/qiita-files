@@ -25,9 +25,9 @@ class SequenceIterator(Workflow):
     A transform method is a function that takes the state dict and modifies it
     in place. For instance, to reverse sequences, you could pass in the
     following function:
-    >>> def reverse(st):
-    ...    st['Sequence']= st['Sequence'][::-1]
-    ...    st['Qual'] = st['Qual'][::-1] if st['Qual'] is not None else None
+    def reverse(st):
+        st['Sequence']= st['Sequence'][::-1]
+        st['Qual'] = st['Qual'][::-1] if st['Qual'] is not None else None
     as ``transform``. The primary intention is to support reverse complementing
     of sequences.
     All subclasses of this object are expected to update the following in
