@@ -16,7 +16,7 @@ import h5py
 def _is_string_or_bytes(s):
     """Returns True if input argument is string (unicode or not) or bytes.
     """
-    return isinstance(s, str) or isinstance(s, bytes)
+    return isinstance(s, str) or isinstance(s, bytes) or isinstance(s, unicode)
 
 
 def _get_filehandle(filepath_or, *args, **kwargs):
