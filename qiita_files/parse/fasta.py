@@ -79,7 +79,7 @@ def parse_fasta(infile, strict=True, label_to_name=None, finder=FastaFinder,
     infile : open file object or str
         An open fasta file or a path to a fasta file.
     strict : bool
-        If ``True`` a ``RecordError`` will be raised if there is a fasta label
+        If ``True`` a ``ValueError`` will be raised if there is a fasta label
         line with no associated sequence, or a sequence with no associated
         label line (in other words, if there is a partial record). If
         ``False``, partial records will be skipped.
@@ -108,8 +108,8 @@ def parse_fasta(infile, strict=True, label_to_name=None, finder=FastaFinder,
 
     Raises
     ------
-    RecordError
-        If ``strict == True``, raises a ``RecordError`` if there is a fasta
+    ValueError
+        If ``strict == True``, raises a ``ValueError`` if there is a fasta
         label line with no associated sequence, or a sequence with no
         associated label line (in other words, if there is a partial record).
 
@@ -126,7 +126,7 @@ def parse_fasta(infile, strict=True, label_to_name=None, finder=FastaFinder,
     ...                    '>seq2 db-accession-34989\n'
     ...                    'CATCGATCGATCGATGCATGCATGCATG\n')
     We can parse this as follows:
-    >>> from skbio.parse.sequences import parse_fasta
+    >>> from qiita_files.parse.fasta import parse_fasta
     >>> for label, seq in parse_fasta(fasta_f):
     ...     print(label, seq)
     seq1 db-accession-149855 CGATGTCGATCGATCGATCGATCAG
@@ -143,7 +143,7 @@ def parse_fasta(infile, strict=True, label_to_name=None, finder=FastaFinder,
     ...                    'CGATGTCGATCGATCGATCGATCAG\n'
     ...                    '>seq2 db-accession-34989\n'
     ...                    'CATCGATCGATCGATGCATGCATGCATG\n')
-    >>> from skbio.parse.sequences import parse_fasta
+    >>> from qiita_files.parse.fasta import parse_fasta
     >>> for label, seq in parse_fasta(fasta_f, ignore_comment=True):
     ...     print(label, seq)
     seq1 CGATGTCGATCGATCGATCGATCAG
@@ -209,7 +209,7 @@ def parse_qual(infile, full_header=False):
         >seq2
         1 2 3 4
     >>> from StringIO import StringIO
-    >>> from skbio.parse.sequences import parse_qual
+    >>> from qiita_files.parse.fasta import parse_qual
     >>> qual_f = StringIO('>seq1\n'
     ...                   '10 20 30 40\n'
     ...                   '>seq2\n'
