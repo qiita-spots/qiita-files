@@ -9,9 +9,15 @@ from __future__ import division
 # -----------------------------------------------------------------------------
 
 from contextlib import contextmanager
+from six import string_types
 
 import h5py
-from skbio.io.util import _is_string_or_bytes
+
+
+def _is_string_or_bytes(s):
+    """Returns True if input argument is string (unicode or not) or bytes.
+    """
+    return isinstance(s, string_types) or isinstance(s, bytes)
 
 
 def _get_filehandle(filepath_or, *args, **kwargs):

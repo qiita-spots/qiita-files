@@ -19,8 +19,7 @@ import numpy.testing as npt
 from qiita_files.demux import (buffer1d, buffer2d, _has_qual,
                                _per_sample_lengths, _summarize_lengths,
                                _set_attr_stats, _construct_datasets, to_hdf5,
-                               format_fasta_record, to_ascii, stat,
-                               to_per_sample_ascii)
+                               to_ascii, stat, to_per_sample_ascii)
 
 
 class BufferTests(TestCase):
@@ -250,32 +249,27 @@ class DemuxTests(TestCase):
         self.to_remove.append(f.name)
         to_hdf5(f.name, self.hdf5_file)
 
-        npt.assert_equal(self.hdf5_file['a/sequence'][:], np.array(["x", "xy",
-                                                                    "xyz"]))
+        npt.assert_equal(self.hdf5_file['a/sequence'][:],
+                         np.array([b"x", b"xy", b"xyz"]))
         npt.assert_equal(self.hdf5_file['a/qual'][:],
                          np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0]]))
         npt.assert_equal(self.hdf5_file['a/barcode/original'][:],
-                         np.array(["abc", "aby", "abz"]))
+                         np.array([b"abc", b"aby", b"abz"]))
         npt.assert_equal(self.hdf5_file['a/barcode/corrected'][:],
-                         np.array(["abc", "ybc", "zbc"]))
+                         np.array([b"abc", b"ybc", b"zbc"]))
         npt.assert_equal(self.hdf5_file['a/barcode/error'][:],
                          np.array([0, 2, 3]))
 
         npt.assert_equal(self.hdf5_file['b/sequence'][:],
-                         np.array(["xyz", "abcd"]))
+                         np.array([b"xyz", b"abcd"]))
         npt.assert_equal(self.hdf5_file['b/qual'][:],
                          np.array([[0, 0, 0, 0], [0, 0, 0, 0]]))
         npt.assert_equal(self.hdf5_file['b/barcode/original'][:],
-                         np.array(["abx", "abw"]))
+                         np.array([b"abx", b"abw"]))
         npt.assert_equal(self.hdf5_file['b/barcode/corrected'][:],
-                         np.array(["xbc", "wbc"]))
+                         np.array([b"xbc", b"wbc"]))
         npt.assert_equal(self.hdf5_file['b/barcode/error'][:],
                          np.array([1, 4]))
-
-    def test_format_fasta_record(self):
-        exp = ">a\nxyz\n"
-        obs = format_fasta_record("a", "xyz", 'ignored')
-        self.assertEqual(obs, exp)
 
     def test_to_ascii(self):
         with tempfile.NamedTemporaryFile('r+', suffix='.fq',
@@ -289,7 +283,7 @@ class DemuxTests(TestCase):
                b"@b_0 orig_bc=abw new_bc=wbc bc_diffs=4\nqwe\n+\nDFG\n",
                b"@b_1 orig_bc=abw new_bc=wbc bc_diffs=4\nqwe\n+\nDEF\n"]
 
-        obs = list(to_ascii(self.hdf5_file, samples=['a', 'b']))
+        obs = list(to_ascii(self.hdf5_file, samples=[b'a', b'b']))
         self.assertEqual(obs, exp)
 
     def test_to_ascii_fasta(self):
@@ -306,7 +300,7 @@ class DemuxTests(TestCase):
                b">b_0 orig_bc=abx new_bc=xbc bc_diffs=1\nxyz\n",
                b">b_1 orig_bc=abw new_bc=wbc bc_diffs=4\nabcd\n"]
 
-        obs = list(to_ascii(self.hdf5_file, samples=['a', 'b']))
+        obs = list(to_ascii(self.hdf5_file, samples=[b'a', b'b']))
         self.assertEqual(obs, exp)
 
     def test_to_per_sample_ascii(self):
@@ -317,12 +311,12 @@ class DemuxTests(TestCase):
         self.to_remove.append(f.name)
         to_hdf5(f.name, self.hdf5_file)
 
-        exp = [('a', [(b"@a_0 orig_bc=abc new_bc=abc bc_diffs=0\nxyz\n+\n"
-                       "ABC\n")]),
-               ('b', [(b"@b_0 orig_bc=abw new_bc=wbc bc_diffs=4\nqwe\n+\n"
-                       "DFG\n"),
-                      (b"@b_1 orig_bc=abw new_bc=wbc bc_diffs=4\nqwe\n+\n"
-                       "DEF\n")])]
+        exp = [(b'a', [(b"@a_0 orig_bc=abc new_bc=abc bc_diffs=0\nxyz\n+\n"
+                        b"ABC\n")]),
+               (b'b', [(b"@b_0 orig_bc=abw new_bc=wbc bc_diffs=4\nqwe\n+\n"
+                        b"DFG\n"),
+                       (b"@b_1 orig_bc=abw new_bc=wbc bc_diffs=4\nqwe\n+\n"
+                        b"DEF\n")])]
 
         obs = [(s[0], list(s[1])) for s in to_per_sample_ascii(self.hdf5_file)]
         self.assertEqual(obs, exp)
@@ -341,12 +335,12 @@ class DemuxTests(TestCase):
         self.to_remove.append(f.name)
         to_hdf5(f.name, self.hdf5_file)
 
-        exp = [('a', [(b"@a_0 orig_bc=abc new_bc=abc bc_diffs=0\nxyz\n+\n"
-                       "ABC\n")]),
-               ('b', [(b"@b_0 orig_bc=abw new_bc=wbc bc_diffs=4\nqwe\n+\n"
-                       "DFG\n"),
-                      (b"@b_1 orig_bc=abw new_bc=wbc bc_diffs=4\nqwexx\n+\n"
-                       "DEF#G\n")])]
+        exp = [(b'a', [(b"@a_0 orig_bc=abc new_bc=abc bc_diffs=0\nxyz\n+\n"
+                        b"ABC\n")]),
+               (b'b', [(b"@b_0 orig_bc=abw new_bc=wbc bc_diffs=4\nqwe\n+\n"
+                        b"DFG\n"),
+                       (b"@b_1 orig_bc=abw new_bc=wbc bc_diffs=4\nqwexx\n+\n"
+                        b"DEF#G\n")])]
 
         obs = [(s[0], list(s[1])) for s in to_per_sample_ascii(self.hdf5_file)]
         self.assertEqual(obs, exp)
