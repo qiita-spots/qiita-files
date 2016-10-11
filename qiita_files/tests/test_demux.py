@@ -12,6 +12,7 @@ import os
 import tempfile
 from unittest import TestCase, main
 from functools import partial
+from shutil import rmtree
 
 import h5py
 import numpy as np
@@ -21,7 +22,7 @@ from qiita_files.demux import (buffer1d, buffer2d, _has_qual,
                                _per_sample_lengths, _summarize_lengths,
                                _set_attr_stats, _construct_datasets, to_hdf5,
                                to_ascii, stat, to_per_sample_ascii,
-                               to_per_sample_fasta)
+                               to_per_sample_files)
 
 
 class BufferTests(TestCase):
@@ -128,7 +129,11 @@ class DemuxTests(TestCase):
     def tearDown(self):
         self.hdf5_file.close()
         for f in self.to_remove:
-            os.remove(f)
+            if os.path.exists(f):
+                if os.path.isdir(f):
+                    rmtree(f)
+                else:
+                    os.remove(f)
 
     def test_has_qual(self):
         with tempfile.NamedTemporaryFile('r+', suffix='.fna') as f:
@@ -323,14 +328,14 @@ class DemuxTests(TestCase):
         obs = [(s[0], list(s[1])) for s in to_per_sample_ascii(self.hdf5_file)]
         self.assertEqual(obs, exp)
 
-    def test_to_fasta(self):
+    def test_to_files(self):
         # implicitly tested with test_to_per_sample_fasta
         pass
 
-    def test_to_per_sample_fasta(self):
+    def test_to_per_sample_files(self):
         with tempfile.NamedTemporaryFile('r+', suffix='.fq',
                                          delete=False) as f:
-            f.write(fqdata)
+            f.write(fqdata_variable_length)
 
         self.to_remove.append(f.name)
 
@@ -343,22 +348,48 @@ class DemuxTests(TestCase):
         with h5py.File(demux_f.name, 'w') as demux:
             to_hdf5(f.name, demux)
 
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            path_builder = partial(os.path.join, tmp_dir)
-            to_per_sample_fasta(demux_f.name, out_dir=tmp_dir, n_jobs=2)
+        tmp_dir = tempfile.mkdtemp()
+        self.to_remove.append(tmp_dir)
+        path_builder = partial(os.path.join, tmp_dir)
 
-            sample_a_path = path_builder("a.fna")
-            sample_b_path = path_builder("b.fna")
-            self.assertTrue(os.path.exists(sample_a_path))
-            self.assertTrue(os.path.exists(sample_b_path))
+        # Test to fastq
+        to_per_sample_files(demux_f.name, out_dir=tmp_dir, n_jobs=1,
+                            out_format='fastq')
+        sample_a_path = path_builder("a.fq")
+        sample_b_path = path_builder("b.fq")
+        self.assertTrue(os.path.exists(sample_a_path))
+        self.assertTrue(os.path.exists(sample_b_path))
 
-            with open(sample_a_path, 'rb') as af:
-                obs = af.read()
-            self.assertEqual(obs, b'>a_0\nxyz\n')
+        with open(sample_a_path, 'rb') as af:
+            obs = af.read()
+        self.assertEqual(
+            obs, b'@a_0 orig_bc=abc new_bc=abc bc_diffs=0\nxyz\n+\nABC\n')
 
-            with open(sample_b_path, 'rb') as bf:
-                obs = bf.read()
-            self.assertEqual(obs, b'>b_0\nqwe\n>b_1\nqwe\n')
+        with open(sample_b_path, 'rb') as bf:
+            obs = bf.read()
+        self.assertEqual(
+            obs, b'@b_0 orig_bc=abw new_bc=wbc bc_diffs=4\nqwe\n+\nDFG\n'
+                 b'@b_1 orig_bc=abw new_bc=wbc bc_diffs=4\nqwexx\n+\nDEF#G\n')
+
+        # Test to fasta and parallel
+        to_per_sample_files(demux_f.name, out_dir=tmp_dir, n_jobs=2,
+                            out_format='fasta')
+
+        sample_a_path = path_builder("a.fna")
+        sample_b_path = path_builder("b.fna")
+        self.assertTrue(os.path.exists(sample_a_path))
+        self.assertTrue(os.path.exists(sample_b_path))
+
+        with open(sample_a_path, 'rb') as af:
+            obs = af.read()
+        self.assertEqual(
+            obs, b'>a_0 orig_bc=abc new_bc=abc bc_diffs=0\nxyz\n')
+
+        with open(sample_b_path, 'rb') as bf:
+            obs = bf.read()
+        self.assertEqual(
+            obs, b'>b_0 orig_bc=abw new_bc=wbc bc_diffs=4\nqwe\n'
+                 b'>b_1 orig_bc=abw new_bc=wbc bc_diffs=4\nqwexx\n')
 
     def test_fetch(self):
         # implicitly tested with test_to_ascii
