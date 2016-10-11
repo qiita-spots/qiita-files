@@ -15,7 +15,7 @@ install:
   - source activate env_name
   - travis_retry pip install .
 script:
-  - nosetests --with-doctest --with-coverage
+  - nosetests --with-doctest --with-coverage --cover-package=qiita_files
   - flake8 qiita_files setup.py
 after_success:
   - coveralls
