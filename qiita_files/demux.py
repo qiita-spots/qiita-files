@@ -54,6 +54,7 @@ from collections import defaultdict, namedtuple
 from re import search
 
 import numpy as np
+import joblib
 from future.utils import viewitems, viewvalues
 from future.builtins import zip
 
@@ -389,6 +390,20 @@ def to_hdf5(fp, h5file, max_barcode_length=12):
             buffers[pjoin(dset_paths['qual'])].write(qual)
 
 
+def _to_ascii(demux, samples, formatter):
+    """Aux function to change from hdf5 to ascii"""
+    id_fmt = (b"%(sample)s_%(idx)d orig_bc=%(bc_ori)s new_bc=%(bc_cor)s "
+              b"bc_diffs=%(bc_diff)d")
+
+    for samp, idx, seq, qual, bc_ori, bc_cor, bc_err in fetch(demux, samples):
+        seq_id = id_fmt % {b'sample': samp, b'idx': idx, b'bc_ori': bc_ori,
+                           b'bc_cor': bc_cor, b'bc_diff': bc_err}
+        if qual != []:
+            qual = qual.astype(np.uint8)
+
+        yield formatter(seq_id, seq, qual)
+
+
 def to_ascii(demux, samples=None):
     """Consume a demuxed HDF5 file and yield sequence records
 
@@ -412,19 +427,10 @@ def to_ascii(demux, samples=None):
     else:
         formatter = format_fasta_record
 
-    id_fmt = (b"%(sample)s_%(idx)d orig_bc=%(bc_ori)s new_bc=%(bc_cor)s "
-              b"bc_diffs=%(bc_diff)d")
-
     if samples is None:
         samples = demux.keys()
 
-    for samp, idx, seq, qual, bc_ori, bc_cor, bc_err in fetch(demux, samples):
-        seq_id = id_fmt % {b'sample': samp, b'idx': idx, b'bc_ori': bc_ori,
-                           b'bc_cor': bc_cor, b'bc_diff': bc_err}
-        if qual != []:
-            qual = qual.astype(np.uint8)
-
-        yield formatter(seq_id, seq, qual)
+    return _to_ascii(demux, samples, formatter)
 
 
 def to_per_sample_ascii(demux, samples=None):
@@ -453,6 +459,60 @@ def to_per_sample_ascii(demux, samples=None):
     for samp in samples:
         samp = samp.encode()
         yield samp, to_ascii(demux, samples=[samp])
+
+
+def _to_file(demux_fp, sample, fp, formatter):
+    with open_file(demux_fp, 'r+') as demux:
+        with open(fp, 'wb') as out:
+            for rec in _to_ascii(demux, [sample], formatter):
+                out.write(rec)
+
+
+def to_per_sample_files(demux_fp, samples=None, out_dir='./', n_jobs=1,
+                        out_format='fastq'):
+    """Writes per sample files
+
+    Parameters
+    ----------
+    demux_fp : str
+        The demux file path
+    samples : list of str, optional
+        Samples to pull out. If None, then all samples will be examined.
+        Defaults to None.
+    out_dir : str, optional
+        Path to output directory to store the per sample fasta.
+        Defaults to current directory
+    n_jobs : int, optional
+        Number of jobs to run in parallel. Defaults to 1
+    out_format : {'fastq', 'fasta'}
+        The format in which the output files should be written.
+    """
+    if out_format == 'fastq':
+        formatter = format_fastq_record
+        file_name_fmt = "%s.fastq"
+    elif out_format == 'fasta':
+        formatter = format_fasta_record
+        file_name_fmt = "%s.fna"
+    else:
+        raise ValueError("'out_format' should be either 'fastq' or 'fasta', "
+                         "found: %s" % out_format)
+    if samples is None:
+        with open_file(demux_fp, 'r') as demux:
+            # We need to call list because demux.keys() is a KeysView object
+            # from the file, and the file will be closed once we exit the
+            # context manager
+            samples = list(demux.keys())
+
+    if out_dir is None:
+        out_dir = './'
+
+    path_builder = partial(os.path.join, out_dir)
+    samples_and_paths = [(s.encode(), path_builder(file_name_fmt % s))
+                         for s in samples]
+
+    with joblib.Parallel(n_jobs=n_jobs) as par:
+        par(joblib.delayed(_to_file)(demux_fp, sample, s_fp, formatter)
+            for sample, s_fp in samples_and_paths)
 
 
 def fetch(demux, samples=None, k=None):
