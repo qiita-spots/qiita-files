@@ -471,7 +471,7 @@ def to_per_sample_fasta(demux_fp, samples=None, out_dir='./', n_jobs=1):
 
     Parameters
     ----------
-    demux : str
+    demux_fp : str
         The demux file path
     samples : list of str, optional
         Samples to pull out. If None, then all samples will be examined.
