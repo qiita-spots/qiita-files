@@ -489,7 +489,7 @@ def to_per_sample_files(demux_fp, samples=None, out_dir='./', n_jobs=1,
     """
     if out_format == 'fastq':
         formatter = format_fastq_record
-        file_name_fmt = "%s.fq"
+        file_name_fmt = "%s.fastq"
     elif out_format == 'fasta':
         formatter = format_fasta_record
         file_name_fmt = "%s.fna"

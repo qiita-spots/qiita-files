@@ -355,8 +355,8 @@ class DemuxTests(TestCase):
         # Test to fastq
         to_per_sample_files(demux_f.name, out_dir=tmp_dir, n_jobs=1,
                             out_format='fastq')
-        sample_a_path = path_builder("a.fq")
-        sample_b_path = path_builder("b.fq")
+        sample_a_path = path_builder("a.fastq")
+        sample_b_path = path_builder("b.fastq")
         self.assertTrue(os.path.exists(sample_a_path))
         self.assertTrue(os.path.exists(sample_b_path))
 
