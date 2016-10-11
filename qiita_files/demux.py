@@ -54,6 +54,7 @@ from collections import defaultdict, namedtuple
 from re import search
 
 import numpy as np
+import joblib
 from future.utils import viewitems, viewvalues
 from future.builtins import zip
 
@@ -453,6 +454,51 @@ def to_per_sample_ascii(demux, samples=None):
     for samp in samples:
         samp = samp.encode()
         yield samp, to_ascii(demux, samples=[samp])
+
+
+def _to_fasta(demux_fp, sample, fp):
+    with open_file(demux_fp, 'r+') as demux:
+        sequences = demux[b'%s/sequence' % sample]
+
+        with open(fp, 'wb') as out:
+            for idx, seq in enumerate(sequences[:]):
+                out.write(format_fasta_record(
+                    b"%s_%d" % (sample, idx), seq, None))
+
+
+def to_per_sample_fasta(demux_fp, samples=None, out_dir='./', n_jobs=1):
+    """Writes per sample fasta
+
+    Parameters
+    ----------
+    demux : str
+        The demux file path
+    samples : list of str, optional
+        Samples to pull out. If None, then all samples will be examined.
+        Defaults to None.
+    out_dir : str, optional
+        Path to output directory to store the per sample fasta.
+        Defaults to current directory
+    n_jobs : int, optional
+        Number of jobs to run in parallel. Defaults to 1
+    """
+    if samples is None:
+        with open_file(demux_fp, 'r') as demux:
+            # We need to call list because demux.keys() is a KeysView object
+            # from the file, and the file will be closed once we exit the
+            # context manager
+            samples = list(demux.keys())
+
+    if out_dir is None:
+        out_dir = './'
+
+    path_builder = partial(os.path.join, out_dir)
+    samples_and_paths = [(s.encode(), path_builder("%s.fna" % s))
+                         for s in samples]
+
+    with joblib.Parallel(n_jobs=n_jobs) as par:
+        par(joblib.delayed(_to_fasta)(demux_fp, sample, s_fp)
+            for sample, s_fp in samples_and_paths)
 
 
 def fetch(demux, samples=None, k=None):

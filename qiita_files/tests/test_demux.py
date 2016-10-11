@@ -11,6 +11,7 @@ from __future__ import division
 import os
 import tempfile
 from unittest import TestCase, main
+from functools import partial
 
 import h5py
 import numpy as np
@@ -19,7 +20,8 @@ import numpy.testing as npt
 from qiita_files.demux import (buffer1d, buffer2d, _has_qual,
                                _per_sample_lengths, _summarize_lengths,
                                _set_attr_stats, _construct_datasets, to_hdf5,
-                               to_ascii, stat, to_per_sample_ascii)
+                               to_ascii, stat, to_per_sample_ascii,
+                               to_per_sample_fasta)
 
 
 class BufferTests(TestCase):
@@ -320,6 +322,43 @@ class DemuxTests(TestCase):
 
         obs = [(s[0], list(s[1])) for s in to_per_sample_ascii(self.hdf5_file)]
         self.assertEqual(obs, exp)
+
+    def test_to_fasta(self):
+        # implicitly tested with test_to_per_sample_fasta
+        pass
+
+    def test_to_per_sample_fasta(self):
+        with tempfile.NamedTemporaryFile('r+', suffix='.fq',
+                                         delete=False) as f:
+            f.write(fqdata)
+
+        self.to_remove.append(f.name)
+
+        with tempfile.NamedTemporaryFile('r+', suffix='.demux',
+                                         delete=False) as demux_f:
+            pass
+
+        self.to_remove.append(demux_f.name)
+
+        with h5py.File(demux_f.name, 'w') as demux:
+            to_hdf5(f.name, demux)
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            path_builder = partial(os.path.join, tmp_dir)
+            to_per_sample_fasta(demux_f.name, out_dir=tmp_dir, n_jobs=2)
+
+            sample_a_path = path_builder("a.fna")
+            sample_b_path = path_builder("b.fna")
+            self.assertTrue(os.path.exists(sample_a_path))
+            self.assertTrue(os.path.exists(sample_b_path))
+
+            with open(sample_a_path, 'rb') as af:
+                obs = af.read()
+            self.assertEqual(obs, b'>a_0\nxyz\n')
+
+            with open(sample_b_path, 'rb') as bf:
+                obs = bf.read()
+            self.assertEqual(obs, b'>b_0\nqwe\n>b_1\nqwe\n')
 
     def test_fetch(self):
         # implicitly tested with test_to_ascii

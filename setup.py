@@ -43,6 +43,6 @@ setup(name='qiita-files',
                 'qiita_files/format',
                 'qiita_files/parse'],
       extras_require={'test': ["nose >= 0.10.1", "pep8"]},
-      install_requires=['future', 'numpy', 'six', 'h5py'],
+      install_requires=['future', 'numpy', 'six', 'h5py', 'joblib'],
       classifiers=classifiers
       )
