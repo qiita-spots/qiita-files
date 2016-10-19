@@ -462,7 +462,7 @@ def to_per_sample_ascii(demux, samples=None):
 
 
 def _to_file(demux_fp, sample, fp, formatter):
-    with open_file(demux_fp, 'r+') as demux:
+    with open_file(demux_fp, 'r') as demux:
         with open(fp, 'wb') as out:
             for rec in _to_ascii(demux, [sample], formatter):
                 out.write(rec)
