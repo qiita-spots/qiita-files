@@ -461,6 +461,43 @@ def to_per_sample_ascii(demux, samples=None):
         yield samp, to_ascii(demux, samples=[samp])
 
 
+def to_ascii_file(demux_fp, output_fp, samples=None, out_format='fastq'):
+    """Writes the sequences on FASTQ or FASTA format
+
+    Parameters
+    ----------
+    demux_fp : str
+        The demux file path
+    output_fp : str
+        The output file path
+    samples : list of str, optional
+        Samples to pull out. If None, then all samples will be examined.
+        Defaults to None.
+    out_format: {'fastq', 'fasta'}, optional
+        The format in which the output file should be written. Default: FASTQ
+
+    Raises
+    ------
+    ValueError
+        If `out_format` is not 'fastq' or 'fasta'
+    """
+    if out_format == 'fastq':
+        formatter = format_fastq_record
+    elif out_format == 'fasta':
+        formatter = format_fasta_record
+    else:
+        raise ValueError("'out_format' should be either 'fastq' or 'fasta', "
+                         "found: %s" % out_format)
+
+    with open_file(demux_fp, 'r') as demux:
+        if samples is None:
+            samples = list(demux.keys())
+        samples = [s.encode() for s in samples]
+        with open(output_fp, 'wb') as out:
+            for rec in _to_ascii(demux, samples, formatter):
+                out.write(rec)
+
+
 def _to_file(demux_fp, sample, fp, formatter):
     with open_file(demux_fp, 'r') as demux:
         with open(fp, 'wb') as out:
