@@ -22,7 +22,7 @@ from qiita_files.demux import (buffer1d, buffer2d, _has_qual,
                                _per_sample_lengths, _summarize_lengths,
                                _set_attr_stats, _construct_datasets, to_hdf5,
                                to_ascii, stat, to_per_sample_ascii,
-                               to_per_sample_files)
+                               to_per_sample_files, to_ascii_file)
 
 
 class BufferTests(TestCase):
@@ -326,6 +326,60 @@ class DemuxTests(TestCase):
                         b"DEF\n")])]
 
         obs = [(s[0], list(s[1])) for s in to_per_sample_ascii(self.hdf5_file)]
+        self.assertEqual(obs, exp)
+
+    def test_to_ascii_file(self):
+        with tempfile.NamedTemporaryFile('r+', suffix='.fq',
+                                         delete=False) as f:
+            f.write(fqdata_variable_length)
+
+        self.to_remove.append(f.name)
+
+        with tempfile.NamedTemporaryFile('r+', suffix='.demux',
+                                         delete=False) as demux_f:
+            pass
+
+        self.to_remove.append(demux_f.name)
+
+        with h5py.File(demux_f.name, 'r+') as demux:
+            to_hdf5(f.name, demux)
+
+        with tempfile.NamedTemporaryFile('r+', suffix='.fq',
+                                         delete=False) as obs_fq:
+            pass
+        self.to_remove.append(obs_fq.name)
+
+        to_ascii_file(demux_f.name, obs_fq.name)
+        with open(obs_fq.name, 'rb') as obs_f:
+            obs = obs_f.read()
+        exp = (b'@a_0 orig_bc=abc new_bc=abc bc_diffs=0\nxyz\n+\nABC\n'
+               b'@b_0 orig_bc=abw new_bc=wbc bc_diffs=4\nqwe\n+\nDFG\n'
+               b'@b_1 orig_bc=abw new_bc=wbc bc_diffs=4\nqwexx\n+\nDEF#G\n')
+        self.assertEqual(obs, exp)
+
+        with tempfile.NamedTemporaryFile('r+', suffix='.fa',
+                                         delete=False) as obs_fa:
+            pass
+        self.to_remove.append(obs_fa.name)
+
+        to_ascii_file(demux_f.name, obs_fa.name, out_format='fasta')
+        with open(obs_fa.name, 'rb') as obs_f:
+            obs = obs_f.read()
+        exp = (b'>a_0 orig_bc=abc new_bc=abc bc_diffs=0\nxyz\n'
+               b'>b_0 orig_bc=abw new_bc=wbc bc_diffs=4\nqwe\n'
+               b'>b_1 orig_bc=abw new_bc=wbc bc_diffs=4\nqwexx\n')
+        self.assertEqual(obs, exp)
+
+        with tempfile.NamedTemporaryFile('r+', suffix='.fq',
+                                         delete=False) as obs_fq:
+            pass
+        self.to_remove.append(obs_fq.name)
+
+        to_ascii_file(demux_f.name, obs_fq.name, samples=['b'])
+        with open(obs_fq.name, 'rb') as obs_f:
+            obs = obs_f.read()
+        exp = (b'@b_0 orig_bc=abw new_bc=wbc bc_diffs=4\nqwe\n+\nDFG\n'
+               b'@b_1 orig_bc=abw new_bc=wbc bc_diffs=4\nqwexx\n+\nDEF#G\n')
         self.assertEqual(obs, exp)
 
     def test_to_files(self):
