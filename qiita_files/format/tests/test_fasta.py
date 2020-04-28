@@ -16,5 +16,6 @@ class FastaTests(TestCase):
         obs = format_fasta_record(b"a", b"xyz", b'ignored')
         self.assertEqual(obs, exp)
 
+
 if __name__ == '__main__':
     main()

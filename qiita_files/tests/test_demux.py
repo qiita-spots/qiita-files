@@ -469,6 +469,7 @@ class DemuxTests(TestCase):
         obs = [(s[0], list(s[1])) for s in to_per_sample_ascii(self.hdf5_file)]
         self.assertEqual(obs, exp)
 
+
 seqdata = b""">a_1 orig_bc=abc new_bc=abc bc_diffs=0
 x
 >b_1 orig_bc=abx new_bc=xbc bc_diffs=1

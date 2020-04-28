@@ -40,5 +40,6 @@ class FastqTests(TestCase):
         obs = _phred_to_ascii64(self.qual_scores)
         self.assertEqual(obs, b'fgh')
 
+
 if __name__ == '__main__':
     main()

@@ -21,6 +21,8 @@ class NotExecuted(object):
     def __call__(self, msg):
         self.msg = msg
         return self
+
+
 _not_executed = NotExecuted()
 
 
@@ -28,6 +30,8 @@ class Exists(object):
     """Stub object to assist with ``requires`` when a value exists"""
     def __contains__(self, item):
         return True
+
+
 anything = Exists()  # external, for when a value can be anything
 
 
@@ -37,6 +41,8 @@ class NotNone(object):
             return False
         else:
             return True
+
+
 not_none = NotNone()
 
 
