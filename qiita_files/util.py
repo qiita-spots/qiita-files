@@ -9,7 +9,11 @@
 from contextlib import contextmanager
 
 import h5py
-h5py.get_config().default_file_mode = 'r'
+
+
+# not present in all 2.x series
+if hasattr(h5py.get_config(), 'default_file_mode'):
+    h5py.get_config().default_file_mode = 'r'
 
 
 def _is_string_or_bytes(s):
