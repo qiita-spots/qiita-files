@@ -12,6 +12,7 @@ from contextlib import contextmanager
 from six import string_types
 
 import h5py
+h5py.get_config().default_file_mode = 'r'
 
 
 def _is_string_or_bytes(s):

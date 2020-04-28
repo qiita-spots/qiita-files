@@ -6,18 +6,14 @@
 # The full license is in the file COPYING.txt, distributed with this software.
 # ----------------------------------------------------------------------------
 
-from future.standard_library import hooks
-
 import numpy as np
 from qiita_files.util import open_file
-
-with hooks():
-    from itertools import zip_longest
+from itertools import zip_longest
 
 
 def _ascii_to_phred(s, offset):
     """Convert ascii to Phred quality score with specified ASCII offset."""
-    return np.fromstring(s, dtype='|S1').view(np.int8) - offset
+    return np.frombuffer(s, dtype='|S1').view(np.int8) - offset
 
 
 def ascii_to_phred33(s):
@@ -81,7 +77,7 @@ def parse_fastq(data, strict=False, enforce_qual_range=True, phred_offset=33):
         for seqid, seq, qualid, qual in zip_longest(*iters):
             seqid = seqid.strip()
             # If the file simply ended in a blankline, do not error
-            if seqid is '':
+            if seqid == b'':
                 continue
             # Error if an incomplete record is found
             # Note: seqid cannot be None, because if all 4 values were None,

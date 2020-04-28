@@ -10,7 +10,7 @@
 
 from unittest import TestCase, main
 
-from six import StringIO
+from io import BytesIO
 from numpy import arange, array
 
 from qiita_files.parse.iterator import (SequenceIterator, FastaIterator,
@@ -128,13 +128,13 @@ class SeqIterTests(TestCase):
 
 class FastaTests(TestCase):
     def setUp(self):
-        self.fastas = [StringIO(fasta1), StringIO(fasta2), StringIO(fasta3)]
-        self.quals = [StringIO(qual1), StringIO(qual2), StringIO(qual3)]
+        self.fastas = [BytesIO(fasta1), BytesIO(fasta2), BytesIO(fasta3)]
+        self.quals = [BytesIO(qual1), BytesIO(qual2), BytesIO(qual3)]
 
-        self.bad_qual_val = [StringIO(qual1), StringIO(qual_bad_val),
-                             StringIO(qual3)]
-        self.bad_qual_id = [StringIO(qual1), StringIO(qual_bad_id),
-                            StringIO(qual3)]
+        self.bad_qual_val = [BytesIO(qual1), BytesIO(qual_bad_val),
+                             BytesIO(qual3)]
+        self.bad_qual_id = [BytesIO(qual1), BytesIO(qual_bad_id),
+                            BytesIO(qual3)]
 
     def test_fasta_gen(self):
         wk = FastaIterator(seq=self.fastas)
@@ -244,7 +244,7 @@ class FastaTests(TestCase):
 
 class FastqTests(TestCase):
     def setUp(self):
-        self.fastqs = [StringIO(fastq1), StringIO(fastq2)]
+        self.fastqs = [BytesIO(fastq1), BytesIO(fastq2)]
 
     def test_fastq_gen(self):
         wk = FastqIterator(seq=self.fastqs)
@@ -276,47 +276,47 @@ class FastqTests(TestCase):
         self.assertEqual(obs3, exp3)
 
 
-fasta1 = """>1
+fasta1 = rb""">1
 aattggcc
 >2
 aattaatt
 """
 
-fasta2 = """>3
+fasta2 = rb""">3
 atat
 """
 
-fasta3 = """>4
+fasta3 = rb""">4
 attatt
 >5
 ggccc
 """
 
-qual1 = """>1
+qual1 = rb""">1
 1 2 3 4 5 6 7 8
 >2
 8 7 6 5 4 3 2 1
 """
 
-qual2 = """>3
+qual2 = rb""">3
 1 2 3 4
 """
 
-qual3 = """>4
+qual3 = rb""">4
 1 2 3 4 5 6
 >5
 1 2 3 4 5
 """
 
-qual_bad_val = """>3
+qual_bad_val = rb""">3
 1 2
 """
 
-qual_bad_id = """>asdasd
+qual_bad_id = rb""">asdasd
 1 2 3 4
 """
 
-fastq1 = """@1
+fastq1 = rb"""@1
 atat
 +
 ABCD
@@ -326,7 +326,7 @@ atgc
 BCDE
 """
 
-fastq2 = """@3
+fastq2 = rb"""@3
 taa
 +
 EFG

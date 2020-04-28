@@ -68,7 +68,7 @@ def _open_or_none(opener, f):
         if not exists(f):
             raise IOError("%s does not appear to exist!" % f)
         try:
-            opened = opener(f)
+            opened = opener(f, 'rb')
         except IOError:
             raise IOError("Could not open %s with %s!" % (f, name))
 

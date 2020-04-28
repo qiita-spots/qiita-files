@@ -398,7 +398,7 @@ def _to_ascii(demux, samples, formatter):
     for samp, idx, seq, qual, bc_ori, bc_cor, bc_err in fetch(demux, samples):
         seq_id = id_fmt % {b'sample': samp, b'idx': idx, b'bc_ori': bc_ori,
                            b'bc_cor': bc_cor, b'bc_diff': bc_err}
-        if qual != []:
+        if isinstance(qual, np.ndarray):
             qual = qual.astype(np.uint8)
 
         yield formatter(seq_id, seq, qual)

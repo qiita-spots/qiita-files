@@ -19,9 +19,9 @@ from qiita_files.parse.fastq import parse_fastq
 class IterableData(object):
     def setUp(self):
         """ Initialize variables to be used by the tests as lists of strings"""
-        self.FASTQ_EXAMPLE = FASTQ_EXAMPLE.split('\n')
-        self.FASTQ_EXAMPLE_2 = FASTQ_EXAMPLE_2.split('\n')
-        self.FASTQ_EXAMPLE_3 = FASTQ_EXAMPLE_3.split('\n')
+        self.FASTQ_EXAMPLE = FASTQ_EXAMPLE.split(b'\n')
+        self.FASTQ_EXAMPLE_2 = FASTQ_EXAMPLE_2.split(b'\n')
+        self.FASTQ_EXAMPLE_3 = FASTQ_EXAMPLE_3.split(b'\n')
 
 
 class FileData(object):
@@ -31,7 +31,7 @@ class FileData(object):
         for attr, val in [('FASTQ_EXAMPLE', FASTQ_EXAMPLE),
                           ('FASTQ_EXAMPLE_2', FASTQ_EXAMPLE_2),
                           ('FASTQ_EXAMPLE_3', FASTQ_EXAMPLE_3)]:
-            tmp_file = tempfile.NamedTemporaryFile('w')
+            tmp_file = tempfile.NamedTemporaryFile('wb')
             tmp_file.write(val)
             tmp_file.flush()
             tmp_file.seek(0)
@@ -157,7 +157,7 @@ DATA_2 = {
 }
 
 
-FASTQ_EXAMPLE = r"""@GAPC_0015:6:1:1259:10413#0/1
+FASTQ_EXAMPLE = rb"""@GAPC_0015:6:1:1259:10413#0/1
 AACACCAAACTTCTCCACCACGTGAGCTACAAAAG
 +GAPC_0015:6:1:1259:10413#0/1
 ````Y^T]`]c^cabcacc`^Lb^ccYT\T\Y\WF
@@ -199,7 +199,7 @@ TTGTTTCCACTTGGTTGATTTCACCCCTGAGTTTG
 \\\ZTYTSaLbb``\_UZ_bbcc`cc^[ac\a\Tc"""
 
 
-FASTQ_EXAMPLE_2 = r"""@GAPC_0017:6:1:1259:10413#0/1
+FASTQ_EXAMPLE_2 = rb"""@GAPC_0017:6:1:1259:10413#0/1
 AACACCAAACTTCTCCACCACGTGAGCTACAAAAG
 +GAPC_0015:6:1:1259:10413#0/1
 ````Y^T]`]c^cabcacc`^Lb^ccYT\T\Y\WF
@@ -210,7 +210,7 @@ TATGTATATATAACATATACATATATACATACATA
 """
 
 
-FASTQ_EXAMPLE_3 = r"""@GAPC_0017:6:1:1259:10413#0/1
+FASTQ_EXAMPLE_3 = rb"""@GAPC_0017:6:1:1259:10413#0/1
 AACACCAAACTTCTCCACCACGTGAGCTACAAAAG
 +GAPC_0015:6:1:1259:10413#0/1
 ````Y^T]`]c^cabcacc`^Lb^ccYT\T\Y\WF

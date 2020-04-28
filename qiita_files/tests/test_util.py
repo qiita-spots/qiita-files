@@ -77,7 +77,7 @@ class TestFilePathOpening(TestCase):
             self.assertTrue(fh is f)
 
     def test_hdf5IO(self):
-        f = h5py.File('test', driver='core', backing_store=False)
+        f = h5py.File('test', mode='w', driver='core', backing_store=False)
         with open_file(f) as fh:
             self.assertTrue(fh is f)
 
