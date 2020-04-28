@@ -53,8 +53,6 @@ from re import search
 
 import numpy as np
 import joblib
-from future.utils import viewitems, viewvalues
-from future.builtins import zip
 
 from qiita_files.parse import load
 from qiita_files.format.fasta import format_fasta_record
@@ -227,10 +225,10 @@ def _summarize_lengths(lengths):
         The full file stats
     """
     sample_stats = {}
-    all_lengths = np.zeros(sum([len(v) for v in viewvalues(lengths)]), int)
+    all_lengths = np.zeros(sum([len(v) for v in lengths.values()]), int)
     pos = 0
 
-    for sid, lens in viewitems(lengths):
+    for sid, lens in lengths.items():
         lens = np.array(lens)
         hist, edge = np.histogram(lens)
         sample_stats[sid] = stat(n=lens.size, max=lens.max(), std=lens.std(),
@@ -300,7 +298,7 @@ def _construct_datasets(sample_stats, h5file, max_barcode_length=12):
 
     buffers = {}
 
-    for sid, stats in viewitems(sample_stats):
+    for sid, stats in sample_stats.items():
         # determine group
         pjoin = partial(os.path.join, sid)
 
