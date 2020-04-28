@@ -5,8 +5,6 @@
 #
 # The full license is in the file COPYING.txt, distributed with this software.
 # -----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function
-
 import numpy as np
 
 from qiita_files.util import open_file

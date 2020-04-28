@@ -1,7 +1,4 @@
 #!/usr/bin/env python
-
-from __future__ import division
-
 # -----------------------------------------------------------------------------
 # Copyright (c) 2014--, The Qiita Development Team.
 #
@@ -15,7 +12,7 @@ from unittest import TestCase, main
 import tempfile
 
 import h5py
-from six import StringIO, BytesIO
+from io import StringIO, BytesIO
 
 from qiita_files.util import (open_file, _is_string_or_bytes)
 

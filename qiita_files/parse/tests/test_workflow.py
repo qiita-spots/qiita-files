@@ -7,8 +7,6 @@
 #
 # The full license is in the file COPYING.txt, distributed with this software.
 # ----------------------------------------------------------------------------
-
-from future.builtins import zip
 from collections import defaultdict
 from unittest import TestCase, main
 

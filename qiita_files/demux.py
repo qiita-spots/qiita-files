@@ -37,8 +37,6 @@ sample group:
     hist_edge : np.array of int, left edge of each bin
 
 """
-from __future__ import division
-
 # -----------------------------------------------------------------------------
 # Copyright (c) 2014--, The Qiita Development Team.
 #
