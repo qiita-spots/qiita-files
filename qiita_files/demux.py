@@ -361,7 +361,8 @@ def to_hdf5(fp, h5file, max_barcode_length=12):
 
     for rec in load(fp):
         result = search((r'^(?P<sample>.+?)_\d+? .*orig_bc=(?P<orig_bc>.+?) '
-                         'new_bc=(?P<corr_bc>.+?) bc_diffs=(?P<bc_diffs>\d+)'),
+                         r'new_bc=(?P<corr_bc>.+?) '
+                         r'bc_diffs=(?P<bc_diffs>\d+)'),
                         rec['SequenceID'])
 
         if result is None:
