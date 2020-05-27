@@ -5,8 +5,6 @@
 #
 # The full license is in the file COPYING.txt, distributed with this software.
 # -----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function
-
 import numpy as np
 
 from qiita_files.util import open_file
@@ -33,16 +31,16 @@ def LabeledRecordFinder(is_label_line, constructor=str.strip, ignore=is_empty):
     def parser(lines):
         with open_file(lines) as lines:
             curr = []
-            for l in lines:
+            for line in lines:
                 try:
-                    l = str(l.decode('utf-8'))
+                    line = str(line.decode('utf-8'))
                 except AttributeError:
                     pass
 
                 if constructor is not None:
-                    line = constructor(l)
+                    line = constructor(line)
                 else:
-                    line = l
+                    line = line
                 if ignore(line):
                     continue
                 # if we find the label, return the previous record

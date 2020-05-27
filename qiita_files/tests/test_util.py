@@ -1,7 +1,4 @@
 #!/usr/bin/env python
-
-from __future__ import division
-
 # -----------------------------------------------------------------------------
 # Copyright (c) 2014--, The Qiita Development Team.
 #
@@ -15,7 +12,7 @@ from unittest import TestCase, main
 import tempfile
 
 import h5py
-from six import StringIO, BytesIO
+from io import StringIO, BytesIO
 
 from qiita_files.util import (open_file, _is_string_or_bytes)
 
@@ -77,7 +74,7 @@ class TestFilePathOpening(TestCase):
             self.assertTrue(fh is f)
 
     def test_hdf5IO(self):
-        f = h5py.File('test', driver='core', backing_store=False)
+        f = h5py.File('test', mode='w', driver='core', backing_store=False)
         with open_file(f) as fh:
             self.assertTrue(fh is f)
 
@@ -94,6 +91,7 @@ class TestFilePathOpening(TestCase):
                 self.assertTrue(isinstance(fh_inner, h5py.File))
 
         os.remove(name)
+
 
 # comment indicates the expected random value
 sequences = [

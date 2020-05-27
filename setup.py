@@ -18,8 +18,8 @@ classes = """
     Topic :: Software Development :: Libraries :: Application Frameworks
     Topic :: Software Development :: Libraries :: Python Modules
     Programming Language :: Python
-    Programming Language :: Python :: 2.7
     Programming Language :: Python :: 3.5
+    Programming Language :: Python :: 3.6
     Programming Language :: Python :: Implementation :: CPython
     Operating System :: POSIX :: Linux
     Operating System :: MacOS :: MacOS X
@@ -43,6 +43,6 @@ setup(name='qiita-files',
                 'qiita_files/format',
                 'qiita_files/parse'],
       extras_require={'test': ["nose >= 0.10.1", "pep8"]},
-      install_requires=['future', 'numpy', 'six', 'h5py', 'joblib'],
+      install_requires=['numpy', 'h5py', 'joblib'],
       classifiers=classifiers
       )

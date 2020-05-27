@@ -1,4 +1,3 @@
-from __future__ import division
 
 # -----------------------------------------------------------------------------
 # Copyright (c) 2014--, The Qiita Development Team.
@@ -123,7 +122,8 @@ class BufferTests(TestCase):
 
 class DemuxTests(TestCase):
     def setUp(self):
-        self.hdf5_file = h5py.File('test', driver='core', backing_store=False)
+        self.hdf5_file = h5py.File('test', mode='w', driver='core',
+                                   backing_store=False)
         self.to_remove = []
 
     def tearDown(self):
@@ -136,14 +136,14 @@ class DemuxTests(TestCase):
                     os.remove(f)
 
     def test_has_qual(self):
-        with tempfile.NamedTemporaryFile('r+', suffix='.fna') as f:
+        with tempfile.NamedTemporaryFile('wb', suffix='.fna') as f:
             f.write(seqdata)
             f.flush()
             f.seek(0)
 
             self.assertFalse(_has_qual(f.name))
 
-        with tempfile.NamedTemporaryFile('r+', suffix='.fq') as f:
+        with tempfile.NamedTemporaryFile('wb', suffix='.fq') as f:
             f.write(fqdata)
             f.flush()
             f.seek(0)
@@ -151,7 +151,7 @@ class DemuxTests(TestCase):
             self.assertTrue(_has_qual(f.name))
 
     def test_per_sample_lengths(self):
-        with tempfile.NamedTemporaryFile('r+', suffix='.fna') as f:
+        with tempfile.NamedTemporaryFile('wb', suffix='.fna') as f:
             f.write(seqdata)
             f.flush()
             f.seek(0)
@@ -161,7 +161,7 @@ class DemuxTests(TestCase):
         exp = {'a': [1, 2, 3], 'b': [3, 4]}
         self.assertEqual(obs, exp)
 
-        with tempfile.NamedTemporaryFile('r+', suffix='.fna') as f:
+        with tempfile.NamedTemporaryFile('wb', suffix='.fna') as f:
             f.write(seqdata_with_underscores)
             f.flush()
             f.seek(0)
@@ -249,7 +249,7 @@ class DemuxTests(TestCase):
         self.assertTrue(self.hdf5_file['b'].attrs['n'], 2)
 
     def test_to_hdf5(self):
-        with tempfile.NamedTemporaryFile('r+', suffix='.fna',
+        with tempfile.NamedTemporaryFile('wb', suffix='.fna',
                                          delete=False) as f:
             f.write(seqdata)
 
@@ -279,7 +279,7 @@ class DemuxTests(TestCase):
                          np.array([1, 4]))
 
     def test_to_ascii(self):
-        with tempfile.NamedTemporaryFile('r+', suffix='.fq',
+        with tempfile.NamedTemporaryFile('wb', suffix='.fq',
                                          delete=False) as f:
             f.write(fqdata)
 
@@ -294,7 +294,7 @@ class DemuxTests(TestCase):
         self.assertEqual(obs, exp)
 
     def test_to_ascii_fasta(self):
-        with tempfile.NamedTemporaryFile('r+', suffix='.fna',
+        with tempfile.NamedTemporaryFile('wb', suffix='.fna',
                                          delete=False) as f:
             f.write(seqdata)
 
@@ -311,7 +311,7 @@ class DemuxTests(TestCase):
         self.assertEqual(obs, exp)
 
     def test_to_per_sample_ascii(self):
-        with tempfile.NamedTemporaryFile('r+', suffix='.fq',
+        with tempfile.NamedTemporaryFile('wb', suffix='.fq',
                                          delete=False) as f:
             f.write(fqdata)
 
@@ -329,7 +329,7 @@ class DemuxTests(TestCase):
         self.assertEqual(obs, exp)
 
     def test_to_ascii_file(self):
-        with tempfile.NamedTemporaryFile('r+', suffix='.fq',
+        with tempfile.NamedTemporaryFile('wb', suffix='.fq',
                                          delete=False) as f:
             f.write(fqdata_variable_length)
 
@@ -387,13 +387,13 @@ class DemuxTests(TestCase):
         pass
 
     def test_to_per_sample_files(self):
-        with tempfile.NamedTemporaryFile('r+', suffix='.fq',
+        with tempfile.NamedTemporaryFile('wb', suffix='.fq',
                                          delete=False) as f:
             f.write(fqdata_variable_length)
 
         self.to_remove.append(f.name)
 
-        with tempfile.NamedTemporaryFile('r+', suffix='.demux',
+        with tempfile.NamedTemporaryFile('wb', suffix='.demux',
                                          delete=False) as demux_f:
             pass
 
@@ -452,7 +452,7 @@ class DemuxTests(TestCase):
     def test_fetch_qual_length_bug(self):
         # fetch was not trimming qual to the length of the sequence resulting
         # in qual scores for positions beyond the length of the sequence.
-        with tempfile.NamedTemporaryFile('r+', suffix='.fq',
+        with tempfile.NamedTemporaryFile('wb', suffix='.fq',
                                          delete=False) as f:
             f.write(fqdata_variable_length)
 
@@ -469,7 +469,8 @@ class DemuxTests(TestCase):
         obs = [(s[0], list(s[1])) for s in to_per_sample_ascii(self.hdf5_file)]
         self.assertEqual(obs, exp)
 
-seqdata = """>a_1 orig_bc=abc new_bc=abc bc_diffs=0
+
+seqdata = b""">a_1 orig_bc=abc new_bc=abc bc_diffs=0
 x
 >b_1 orig_bc=abx new_bc=xbc bc_diffs=1
 xyz
@@ -481,7 +482,7 @@ xyz
 abcd
 """
 
-seqdata_with_underscores = """>a_x_1 orig_bc=abc new_bc=abc bc_diffs=0
+seqdata_with_underscores = b""">a_x_1 orig_bc=abc new_bc=abc bc_diffs=0
 x
 >b_x_1 orig_bc=abx new_bc=xbc bc_diffs=1
 xyz
@@ -493,7 +494,7 @@ xyz
 abcd
 """
 
-fqdata = """@a_1 orig_bc=abc new_bc=abc bc_diffs=0
+fqdata = b"""@a_1 orig_bc=abc new_bc=abc bc_diffs=0
 xyz
 +
 ABC
@@ -507,7 +508,7 @@ qwe
 DEF
 """
 
-fqdata_variable_length = """@a_1 orig_bc=abc new_bc=abc bc_diffs=0
+fqdata_variable_length = b"""@a_1 orig_bc=abc new_bc=abc bc_diffs=0
 xyz
 +
 ABC

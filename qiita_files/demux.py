@@ -37,8 +37,6 @@ sample group:
     hist_edge : np.array of int, left edge of each bin
 
 """
-from __future__ import division
-
 # -----------------------------------------------------------------------------
 # Copyright (c) 2014--, The Qiita Development Team.
 #
@@ -55,8 +53,6 @@ from re import search
 
 import numpy as np
 import joblib
-from future.utils import viewitems, viewvalues
-from future.builtins import zip
 
 from qiita_files.parse import load
 from qiita_files.format.fasta import format_fasta_record
@@ -229,10 +225,10 @@ def _summarize_lengths(lengths):
         The full file stats
     """
     sample_stats = {}
-    all_lengths = np.zeros(sum([len(v) for v in viewvalues(lengths)]), int)
+    all_lengths = np.zeros(sum([len(v) for v in lengths.values()]), int)
     pos = 0
 
-    for sid, lens in viewitems(lengths):
+    for sid, lens in lengths.items():
         lens = np.array(lens)
         hist, edge = np.histogram(lens)
         sample_stats[sid] = stat(n=lens.size, max=lens.max(), std=lens.std(),
@@ -302,7 +298,7 @@ def _construct_datasets(sample_stats, h5file, max_barcode_length=12):
 
     buffers = {}
 
-    for sid, stats in viewitems(sample_stats):
+    for sid, stats in sample_stats.items():
         # determine group
         pjoin = partial(os.path.join, sid)
 
@@ -365,7 +361,8 @@ def to_hdf5(fp, h5file, max_barcode_length=12):
 
     for rec in load(fp):
         result = search((r'^(?P<sample>.+?)_\d+? .*orig_bc=(?P<orig_bc>.+?) '
-                         'new_bc=(?P<corr_bc>.+?) bc_diffs=(?P<bc_diffs>\d+)'),
+                         r'new_bc=(?P<corr_bc>.+?) '
+                         r'bc_diffs=(?P<bc_diffs>\d+)'),
                         rec['SequenceID'])
 
         if result is None:
@@ -398,7 +395,7 @@ def _to_ascii(demux, samples, formatter):
     for samp, idx, seq, qual, bc_ori, bc_cor, bc_err in fetch(demux, samples):
         seq_id = id_fmt % {b'sample': samp, b'idx': idx, b'bc_ori': bc_ori,
                            b'bc_cor': bc_cor, b'bc_diff': bc_err}
-        if qual != []:
+        if isinstance(qual, np.ndarray):
             qual = qual.astype(np.uint8)
 
         yield formatter(seq_id, seq, qual)

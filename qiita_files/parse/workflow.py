@@ -5,8 +5,6 @@
 #
 # The full license is in the file COPYING.txt, distributed with this software.
 # ----------------------------------------------------------------------------
-
-from future.utils import viewitems
 import sys
 from copy import deepcopy
 from time import time
@@ -23,6 +21,8 @@ class NotExecuted(object):
     def __call__(self, msg):
         self.msg = msg
         return self
+
+
 _not_executed = NotExecuted()
 
 
@@ -30,6 +30,8 @@ class Exists(object):
     """Stub object to assist with ``requires`` when a value exists"""
     def __contains__(self, item):
         return True
+
+
 anything = Exists()  # external, for when a value can be anything
 
 
@@ -39,6 +41,8 @@ class NotNone(object):
             return False
         else:
             return True
+
+
 not_none = NotNone()
 
 
@@ -97,7 +101,7 @@ class Workflow(object):
         self.state = state
         self.iter_ = None
 
-        for k, v in viewitems(kwargs):
+        for k, v in kwargs.items():
             if hasattr(self, k):
                 raise AttributeError("'%s' already exists in self." % k)
             setattr(self, k, v)
