@@ -24,10 +24,9 @@ jobs:
       - name: Basic dependencies install
         shell: bash -l {0}
         run: |
-
-        conda create --yes -n qiita-files python=3.6 h5py pandas scipy numpy
-        conda activate qiita-files
-        travis_retry pip install .
+          conda create --yes -n qiita-files python=3.6 h5py pandas scipy numpy
+          conda activate qiita-files
+          travis_retry pip install .
 
       - name: Main tests
         shell: bash -l {0}
