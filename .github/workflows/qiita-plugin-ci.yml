@@ -32,6 +32,7 @@ jobs:
         shell: bash -l {0}
         run: |
           conda activate qiita-files
+          pip install nosetests
           nosetests --with-doctest --with-coverage --cover-package=qiita_files
 
   lint:
