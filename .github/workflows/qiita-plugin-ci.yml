@@ -27,12 +27,12 @@ jobs:
           conda create --yes -n qiita-files python=3.6 h5py pandas scipy numpy
           conda activate qiita-files
           pip install .
+          pip install sphinx sphinx-bootstrap-theme nose-timer codecov Click
 
       - name: Main tests
         shell: bash -l {0}
         run: |
           conda activate qiita-files
-          pip install nosetests
           nosetests --with-doctest --with-coverage --cover-package=qiita_files
 
   lint:
