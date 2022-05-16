@@ -596,11 +596,14 @@ def fetch(demux, samples=None, k=None):
         # only yield qual if we have it
         quals = repeat([])
         if demux.attrs['has-qual']:
+            # See https://github.com/h5py/h5py/issues/1847 for indexing below
             if len(indices) == 1:
                 if indices[0]:
-                    quals = demux[pjoin(dset_paths_bytes['qual'])][:]
+                    quals = demux[
+                        pjoin(dset_paths_bytes['qual'])][: ,:][:]
             else:
-                quals = demux[pjoin(dset_paths_bytes['qual'])][indices, :]
+                quals = demux[
+                    pjoin(dset_paths_bytes['qual'])][:, :][indices, :]
 
         bc_original = demux[
             pjoin(dset_paths_bytes['barcode_original'])][indices]
