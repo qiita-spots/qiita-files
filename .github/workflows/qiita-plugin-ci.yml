@@ -1,0 +1,52 @@
+# name: qiita-files CI
+
+on:
+  push:
+    branches: [ dev ]
+  pull_request:
+
+jobs:
+  # derived from https://github.com/actions/example-services/blob/master/.github/workflows/postgres-service.yml
+  main:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Downloads a copy of the code in your repository before running CI tests
+      - name: Check out repository code
+        uses: actions/checkout@v2
+
+      - name: Setup for conda
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          auto-update-conda: true
+          python-version: 3.6
+
+      - name: Basic dependencies install
+        shell: bash -l {0}
+        run: |
+          conda create --yes -n qiita-files python=3.6 h5py pandas scipy numpy
+          conda activate qiita-files
+          pip install .
+          pip install sphinx sphinx-bootstrap-theme nose-timer codecov Click
+
+      - name: Main tests
+        shell: bash -l {0}
+        run: |
+          conda activate qiita-files
+          nosetests --with-doctest --with-coverage --cover-package=qiita_files
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - name: flake8
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.6
+    - name: install dependencies
+      run: python -m pip install --upgrade pip
+    - name: Check out repository code
+      uses: actions/checkout@v2
+    - name: lint
+      run: |
+        pip install -q flake8
+        flake8 qiita_files setup.py
