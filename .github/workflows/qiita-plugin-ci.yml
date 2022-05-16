@@ -25,7 +25,7 @@ jobs:
         shell: bash -l {0}
         run: |
 
-        conda create --yes -n qiita-files python=$PYTHON_VERSION h5py pandas scipy numpy
+        conda create --yes -n qiita-files python=3.6 h5py pandas scipy numpy
         conda activate qiita-files
         travis_retry pip install .
 
