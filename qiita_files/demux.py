@@ -600,7 +600,7 @@ def fetch(demux, samples=None, k=None):
             if len(indices) == 1:
                 if indices[0]:
                     quals = demux[
-                        pjoin(dset_paths_bytes['qual'])][: ,:][:]
+                        pjoin(dset_paths_bytes['qual'])][:, :][:]
             else:
                 quals = demux[
                     pjoin(dset_paths_bytes['qual'])][:, :][indices, :]
