@@ -7,13 +7,17 @@
 # -----------------------------------------------------------------------------
 
 from contextlib import contextmanager
+from packaging import version
 
 import h5py
 
 
-# not present in all 2.x series
-if hasattr(h5py.get_config(), 'default_file_mode'):
-    h5py.get_config().default_file_mode = 'r'
+# Setting h5py.default_file_mode is deprecated.
+# 'r' (read-only) is the default from h5py 3.0.
+if version.Version(h5py.__version__) <= version.Version("3.0"):
+    # not present in all 2.x series
+    if hasattr(h5py.get_config(), 'default_file_mode'):
+        h5py.get_config().default_file_mode = 'r'
 
 
 def _is_string_or_bytes(s):
