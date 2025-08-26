@@ -9,7 +9,9 @@ jobs:
   # derived from https://github.com/actions/example-services/blob/master/.github/workflows/postgres-service.yml
   main:
     runs-on: ubuntu-latest
-
+    strategy:
+          matrix:
+            python-version: ["3.9", "3.10"]
     steps:
       # Downloads a copy of the code in your repository before running CI tests
       - name: Check out repository code
@@ -19,12 +21,12 @@ jobs:
         uses: conda-incubator/setup-miniconda@v2
         with:
           auto-update-conda: true
-          python-version: 3.9
+          python-version: ${{ matrix.python-version }}
 
       - name: Basic dependencies install
         shell: bash -l {0}
         run: |
-          conda create --yes -n qiita-files python=3.9 h5py pandas scipy numpy
+          conda create --yes -n qiita-files python=${{ matrix.python-version }} h5py pandas scipy numpy
           conda activate qiita-files
           pip install .
           pip install sphinx sphinx-bootstrap-theme nose-timer codecov Click
