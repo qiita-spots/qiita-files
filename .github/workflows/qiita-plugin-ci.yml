@@ -9,7 +9,9 @@ jobs:
   # derived from https://github.com/actions/example-services/blob/master/.github/workflows/postgres-service.yml
   main:
     runs-on: ubuntu-latest
-
+    strategy:
+          matrix:
+            python-version: ["3.5", "3.6", "3.9", "3.10", "3.11", "3.12"]
     steps:
       # Downloads a copy of the code in your repository before running CI tests
       - name: Check out repository code
@@ -19,21 +21,21 @@ jobs:
         uses: conda-incubator/setup-miniconda@v2
         with:
           auto-update-conda: true
-          python-version: 3.9
+          python-version: ${{ matrix.python-version }}
 
       - name: Basic dependencies install
         shell: bash -l {0}
         run: |
-          conda create --yes -n qiita-files python=3.9 h5py pandas scipy numpy
+          conda create --yes -n qiita-files python=${{ matrix.python-version }} h5py pandas scipy numpy
           conda activate qiita-files
           pip install .
-          pip install sphinx sphinx-bootstrap-theme nose-timer codecov Click
+          pip install sphinx sphinx-bootstrap-theme pytest-cov codecov Click
 
       - name: Main tests
         shell: bash -l {0}
         run: |
           conda activate qiita-files
-          nosetests --with-doctest --with-coverage --cover-package=qiita_files
+          pytest --doctest-modules --cov=qiita_files `if (( $(echo "${{ matrix.python-version }} > 3.6" | bc -l) )); then echo "--cov-report=lcov"; else echo ""; fi`
 
   lint:
     runs-on: ubuntu-latest

@@ -9,7 +9,10 @@ import sys
 from copy import deepcopy
 from time import time
 from functools import update_wrapper
-from collections import Iterable
+try:
+    from collections.abc import Iterable
+except ImportError:
+    from collections import Iterable
 from types import MethodType
 
 
