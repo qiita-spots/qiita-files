@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
           matrix:
-            python-version: ["3.5", "3.6", "3.9", "3.10", "3.11", "3.12"]
+            python-version: ["2.7", "3.5", "3.6", "3.9", "3.10", "3.11", "3.12"]
     steps:
       # Downloads a copy of the code in your repository before running CI tests
       - name: Check out repository code
@@ -35,7 +35,7 @@ jobs:
         shell: bash -l {0}
         run: |
           conda activate qiita-files
-          pytest --doctest-modules --cov=qiita_files `if (( $(echo "${{ matrix.python-version }} > 3.6" | bc -l) )); then echo "--cov-report=lcov"; else echo ""; fi`
+          pytest --doctest-modules `if (( $(echo "${{ matrix.python-version }} > 3.6" | bc -l) )); then echo "--cov-report=lcov --cov=qiita_files"; else echo ""; fi`
 
   lint:
     runs-on: ubuntu-latest

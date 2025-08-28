@@ -276,47 +276,47 @@ class FastqTests(TestCase):
         self.assertEqual(obs3, exp3)
 
 
-fasta1 = rb""">1
+fasta1 = r""">1
 aattggcc
 >2
 aattaatt
-"""
+""".encode("utf-8")
 
-fasta2 = rb""">3
+fasta2 = r""">3
 atat
-"""
+""".encode("utf-8")
 
-fasta3 = rb""">4
+fasta3 = r""">4
 attatt
 >5
 ggccc
-"""
+""".encode("utf-8")
 
-qual1 = rb""">1
+qual1 = r""">1
 1 2 3 4 5 6 7 8
 >2
 8 7 6 5 4 3 2 1
-"""
+""".encode("utf-8")
 
-qual2 = rb""">3
+qual2 = r""">3
 1 2 3 4
-"""
+""".encode("utf-8")
 
-qual3 = rb""">4
+qual3 = r""">4
 1 2 3 4 5 6
 >5
 1 2 3 4 5
-"""
+""".encode("utf-8")
 
-qual_bad_val = rb""">3
+qual_bad_val = r""">3
 1 2
-"""
+""".encode("utf-8")
 
-qual_bad_id = rb""">asdasd
+qual_bad_id = r""">asdasd
 1 2 3 4
-"""
+""".encode("utf-8")
 
-fastq1 = rb"""@1
+fastq1 = r"""@1
 atat
 +
 ABCD
@@ -324,13 +324,13 @@ ABCD
 atgc
 +
 BCDE
-"""
+""".encode("utf-8")
 
-fastq2 = rb"""@3
+fastq2 = r"""@3
 taa
 +
 EFG
-"""
+""".encode("utf-8")
 
 
 if __name__ == '__main__':

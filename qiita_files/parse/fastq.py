@@ -8,7 +8,10 @@
 
 import numpy as np
 from qiita_files.util import open_file
-from itertools import zip_longest
+try:
+    from itertools import zip_longest
+except ImportError:
+    from itertools import izip_longest as zip_longest
 
 
 def _ascii_to_phred(s, offset):
