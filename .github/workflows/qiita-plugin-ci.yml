@@ -35,7 +35,7 @@ jobs:
         shell: bash -l {0}
         run: |
           conda activate qiita-files
-          pytest --doctest-modules --cov=qiita_files `if (( $(echo "${{ matrix.python-version }} > 3.6" | bc -l) )); then echo "--cov-report=lcov"; else echo ""; fi`
+          pytest --doctest-modules `if (( $(echo "${{ matrix.python-version }} > 3.6" | bc -l) )); then echo "--cov-report=lcov --cov=qiita_files"; else echo ""; fi`
 
   lint:
     runs-on: ubuntu-latest
