@@ -8,11 +8,16 @@
 # -----------------------------------------------------------------------------
 
 import os
+import sys
 from unittest import TestCase, main
 import tempfile
 
 import h5py
-from io import StringIO, BytesIO
+if sys.version_info[0] == 2:
+    from StringIO import StringIO
+else:
+    from io import StringIO
+from io import BytesIO
 
 from qiita_files.util import (open_file, _is_string_or_bytes)
 
@@ -25,7 +30,7 @@ class TestFilePathOpening(TestCase):
     """Tests adapted from scikit-bio's skbio.io.util tests"""
     def test_is_string_or_bytes(self):
         self.assertTrue(_is_string_or_bytes('foo'))
-        self.assertTrue(_is_string_or_bytes(u'foo'))
+        self.assertTrue(_is_string_or_bytes(u'foo'.encode("utf-8")))
         self.assertTrue(_is_string_or_bytes(b'foo'))
         self.assertFalse(_is_string_or_bytes(StringIO('bar')))
         self.assertFalse(_is_string_or_bytes([1]))
