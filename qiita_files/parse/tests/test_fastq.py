@@ -17,9 +17,9 @@ from qiita_files.parse.fastq import parse_fastq
 class IterableData(object):
     def setUp(self):
         """ Initialize variables to be used by the tests as lists of strings"""
-        self.FASTQ_EXAMPLE = FASTQ_EXAMPLE.split(b'\n')
-        self.FASTQ_EXAMPLE_2 = FASTQ_EXAMPLE_2.split(b'\n')
-        self.FASTQ_EXAMPLE_3 = FASTQ_EXAMPLE_3.split(b'\n')
+        self.FASTQ_EXAMPLE = FASTQ_EXAMPLE.split('\n')
+        self.FASTQ_EXAMPLE_2 = FASTQ_EXAMPLE_2.split('\n')
+        self.FASTQ_EXAMPLE_3 = FASTQ_EXAMPLE_3.split('\n')
 
 
 class FileData(object):
@@ -30,7 +30,7 @@ class FileData(object):
                           ('FASTQ_EXAMPLE_2', FASTQ_EXAMPLE_2),
                           ('FASTQ_EXAMPLE_3', FASTQ_EXAMPLE_3)]:
             tmp_file = tempfile.NamedTemporaryFile('wb')
-            tmp_file.write(val)
+            tmp_file.write(val.encode("utf-8"))
             tmp_file.flush()
             tmp_file.seek(0)
             setattr(self, attr, tmp_file.name)
@@ -44,7 +44,7 @@ class FileData(object):
 
 class ParseFastqTests(object):
     def test_parse(self):
-        for label, seq, qual in parse_fastq(self.FASTQ_EXAMPLE,
+        for label, seq, qual in parse_fastq(list_str2bin(self.FASTQ_EXAMPLE),
                                             phred_offset=64):
             self.assertTrue(label in DATA)
             self.assertEqual(seq, DATA[label]["seq"])
@@ -52,7 +52,7 @@ class ParseFastqTests(object):
 
         # Make sure that enforce_qual_range set to False allows qual scores
         # to fall outside the typically acceptable range of 0-62
-        for label, seq, qual in parse_fastq(self.FASTQ_EXAMPLE_2,
+        for label, seq, qual in parse_fastq(list_str2bin(self.FASTQ_EXAMPLE_2),
                                             phred_offset=33,
                                             enforce_qual_range=False):
             self.assertTrue(label in DATA_2)
@@ -63,18 +63,18 @@ class ParseFastqTests(object):
         # intended to be interpreted with an offset of 64, and using 33 will
         # make the qual score fall outside the acceptable range of 0-62.
         with self.assertRaises(ValueError):
-            list(parse_fastq(self.FASTQ_EXAMPLE, phred_offset=33))
+            list(parse_fastq(list_str2bin(self.FASTQ_EXAMPLE), phred_offset=33))
 
     def test_parse_error(self):
         with self.assertRaises(ValueError):
-            list(parse_fastq(self.FASTQ_EXAMPLE_2, strict=True))
+            list(parse_fastq(list_str2bin(self.FASTQ_EXAMPLE_2), strict=True))
 
         with self.assertRaises(ValueError):
-            list(parse_fastq(self.FASTQ_EXAMPLE_3, phred_offset=64))
+            list(parse_fastq(list_str2bin(self.FASTQ_EXAMPLE_3), phred_offset=64))
 
     def test_invalid_phred_offset(self):
         with self.assertRaises(ValueError):
-            list(parse_fastq(self.FASTQ_EXAMPLE, phred_offset=42))
+            list(parse_fastq(list_str2bin(self.FASTQ_EXAMPLE), phred_offset=42))
 
 
 class ParseFastqTestsInputIsIterable(IterableData, ParseFastqTests, TestCase):
@@ -154,8 +154,13 @@ DATA_2 = {
                      64, 51, 63, 63, 65, 65, 65]))
 }
 
+def list_str2bin(inp):
+    if isinstance(inp, list):
+        return list(map(lambda x: x.encode("utf-8"), inp))
+    return inp
 
-FASTQ_EXAMPLE = str(r"""@GAPC_0015:6:1:1259:10413#0/1
+
+FASTQ_EXAMPLE = r"""@GAPC_0015:6:1:1259:10413#0/1
 AACACCAAACTTCTCCACCACGTGAGCTACAAAAG
 +GAPC_0015:6:1:1259:10413#0/1
 ````Y^T]`]c^cabcacc`^Lb^ccYT\T\Y\WF
@@ -194,10 +199,10 @@ cLcc\\dddddaaYd`T```bLYT\`a```bZccc
 @GAPC_0015:6:1:1317:3403#0/1
 TTGTTTCCACTTGGTTGATTTCACCCCTGAGTTTG
 +GAPC_0015:6:1:1317:3403#0/1
-\\\ZTYTSaLbb``\_UZ_bbcc`cc^[ac\a\Tc""")
+\\\ZTYTSaLbb``\_UZ_bbcc`cc^[ac\a\Tc"""
 
 
-FASTQ_EXAMPLE_2 = str(r"""@GAPC_0017:6:1:1259:10413#0/1
+FASTQ_EXAMPLE_2 = r"""@GAPC_0017:6:1:1259:10413#0/1
 AACACCAAACTTCTCCACCACGTGAGCTACAAAAG
 +GAPC_0015:6:1:1259:10413#0/1
 ````Y^T]`]c^cabcacc`^Lb^ccYT\T\Y\WF
@@ -205,15 +210,15 @@ AACACCAAACTTCTCCACCACGTGAGCTACAAAAG
 TATGTATATATAACATATACATATATACATACATA
 +GAPC_0015:6:1:1283:11957#0/1
 ]KZ[PY]_[YY^```ac^\\`bT``c`\aT``bbb
-""")
+"""
 
 
-FASTQ_EXAMPLE_3 = str(r"""@GAPC_0017:6:1:1259:10413#0/1
+FASTQ_EXAMPLE_3 = r"""@GAPC_0017:6:1:1259:10413#0/1
 AACACCAAACTTCTCCACCACGTGAGCTACAAAAG
 +GAPC_0015:6:1:1259:10413#0/1
 ````Y^T]`]c^cabcacc`^Lb^ccYT\T\Y\WF
 @GAPC_0015:6:1:1283:11957#0/1
-""")
+"""
 
 
 if __name__ == "__main__":

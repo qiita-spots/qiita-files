@@ -11,7 +11,7 @@ from qiita_files.util import open_file
 try:
     from itertools import zip_longest
 except ImportError:
-    from itertools import izip_longest
+    from itertools import izip_longest as zip_longest
 
 
 def _ascii_to_phred(s, offset):
