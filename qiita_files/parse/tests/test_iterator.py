@@ -15,7 +15,6 @@ from numpy import arange, array
 
 from qiita_files.parse.iterator import (SequenceIterator, FastaIterator,
                                         FastqIterator)
-from test_fastq import list_str2bin
 
 
 class SeqIterTests(TestCase):
