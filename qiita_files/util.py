@@ -11,9 +11,13 @@ from contextlib import contextmanager
 import h5py
 
 
-# not present in all 2.x series
-if hasattr(h5py.get_config(), 'default_file_mode'):
-    h5py.get_config().default_file_mode = 'r'
+# deprecated sind h5py 3.3,
+# see https://docs.h5py.org/en/stable/whatsnew/3.6.html
+h5py_version = list(map(int, h5py.__version__.split('.')))
+if h5py_version < [3, 3, 0]:
+    # not present in all 2.x series
+    if hasattr(h5py.get_config(), 'default_file_mode'):
+        h5py.get_config().default_file_mode = 'r'
 
 
 def _is_string_or_bytes(s):
